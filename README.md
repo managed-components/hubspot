@@ -1,4 +1,4 @@
-# MC Dynamite Managed Component
+# Hubspot Managed Component
 
 ## Documentation
 

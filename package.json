@@ -1,5 +1,5 @@
 {
-  "name": "mc-dynamite",
+  "name": "hubspot",
   "version": "1.0.0",
   "description": "A Managed Component for making the internet better",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
   "keywords": [
     "webcm",
     "managed-components",
-    "mc-dynamite"
+    "hubspot"
   ],
   "author": "",
   "license": "Apache-2.0",

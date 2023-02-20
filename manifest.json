@@ -1,6 +1,6 @@
 {
-  "name": "MC Dynamite",
-  "namespace": "mc-dynamite",
+  "name": "Hubspot",
+  "namespace": "hubspot",
   "description": "A Managed Component for making the internet better",
   "icon": "assets/icon.svg",
   "permissions": {
