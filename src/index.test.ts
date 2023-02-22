@@ -1,11 +1,11 @@
-import { hashString } from './utils';
+import { hashString } from './utils'
 import { MCEvent } from '@managed-components/types'
 import { sendEvent, handleChatEvent, handleFormEvent } from '.'
 
 const isRecentTs = (value: string) => {
-  const now = new Date().valueOf();
-  let ts = parseInt(value);
-  return ts <= now && ts > now - 10000;
+  const now = new Date().valueOf()
+  const ts = parseInt(value)
+  return ts <= now && ts > now - 10000
 }
 
 const getRecentTsPattern = () => {
@@ -15,7 +15,8 @@ const getRecentTsPattern = () => {
 const dummyClient = {
   title: 'Zaraz "Test" /t Page',
   timestamp: 1670502437,
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+  userAgent:
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
   language: 'en-GB',
   referer: '',
   ip: '127.0.0.1',
@@ -33,25 +34,25 @@ const dummyClient = {
 }
 
 describe('Hubspot MC event handler works correctly', () => {
-  let fetchedRequests: any = []
-  let setCookies: any = []
+  const fetchedRequests: any = []
+  const setCookies: any = []
 
   const settings = {
-    accountId: '12345', 
-    regionPrefix: 'eu1', 
-    domainName: 'domain.com'
+    accountId: '12345',
+    regionPrefix: 'eu1',
+    domainName: 'domain.com',
   }
 
   const fakeEvent = new Event('event', {}) as MCEvent
   fakeEvent.payload = {
-    identifyEmail: 'identifyEmail@email.com', 
-    identifyUserId: 'identifyUserId', 
-    n: 'event_name', 
-    property_name: 'property', 
+    identifyEmail: 'identifyEmail@email.com',
+    identifyUserId: 'identifyUserId',
+    n: 'event_name',
+    property_name: 'property',
     property_value: 'value',
-    cs: 'UTF-8', 
-    ln: 'en-GB', 
-    po: '/home'
+    cs: 'UTF-8',
+    ln: 'en-GB',
+    po: '/home',
   }
   fakeEvent.client = {
     ...dummyClient,
@@ -73,7 +74,7 @@ describe('Hubspot MC event handler works correctly', () => {
   )
   const bCookieRegex = new RegExp(`^${domain}.1.${getRecentTsPattern()}$`)
 
-  sendEvent(settings)(fakeEvent);
+  sendEvent(settings)(fakeEvent)
 
   it('creates the Hubspot track request correctly', async () => {
     const request = fetchedRequests.find((x: any) =>
@@ -93,12 +94,14 @@ describe('Hubspot MC event handler works correctly', () => {
     expect(url.searchParams.get('pu')).toEqual(fakeEvent.client.url.href)
     expect(url.searchParams.get('t')).toEqual(fakeEvent.client.title)
     expect(url.searchParams.get('cts')).toSatisfy(isRecentTs)
-    expect(url.searchParams.get('_' + fakeEvent.payload.property_name)).toEqual(fakeEvent.payload.property_value)
+    expect(url.searchParams.get('_' + fakeEvent.payload.property_name)).toEqual(
+      fakeEvent.payload.property_value
+    )
     expect(url.searchParams.get('n')).toEqual(fakeEvent.payload.n)
     expect(url.searchParams.get('i')).toEqual(
-      new URLSearchParams({ 
-        email: fakeEvent.payload.identifyEmail, 
-        id: fakeEvent.payload.identifyUserId
+      new URLSearchParams({
+        email: fakeEvent.payload.identifyEmail,
+        id: fakeEvent.payload.identifyUserId,
       }).toString()
     )
     expect(url.searchParams.get('sd')).toEqual('2560x1080')
@@ -132,11 +135,11 @@ describe('Hubspot MC event handler works correctly', () => {
 })
 
 describe('Hubspot MC chat handler works correctly', () => {
-  let script: string | undefined = undefined;
+  let script: string | undefined = undefined
 
   const settings = {
-    accountId: '12345', 
-    regionPrefix: 'eu1', 
+    accountId: '12345',
+    regionPrefix: 'eu1',
   }
 
   const fakeEvent = new Event('chat', {}) as MCEvent
@@ -148,32 +151,34 @@ describe('Hubspot MC chat handler works correctly', () => {
     },
   }
 
-  handleChatEvent(settings)(fakeEvent);
+  handleChatEvent(settings)(fakeEvent)
 
   it('creates the Hubspot chat script correctly', async () => {
     expect(script).toBeDefined()
-    expect(script).toEqual(`!function(t,e,r){if(!document.getElementById(t)){var n=document.createElement("script");for(var a in n.src="https://js-${settings.regionPrefix}.usemessages.com/conversations-embed.js",n.type="text/javascript",n.id=t,r)r.hasOwnProperty(a)&&n.setAttribute(a,r[a]);var i=document.getElementsByTagName("script")[0];i.parentNode.insertBefore(n,i)}}("hubspot-messages-loader",0,{"data-loader":"hs-scriptloader","data-hsjs-portal":${settings.accountId},"data-hsjs-env":"prod","data-hsjs-hublet":"${settings.regionPrefix}"});`)
+    expect(script).toEqual(
+      `!function(t,e,r){if(!document.getElementById(t)){var n=document.createElement("script");for(var a in n.src="https://js-${settings.regionPrefix}.usemessages.com/conversations-embed.js",n.type="text/javascript",n.id=t,r)r.hasOwnProperty(a)&&n.setAttribute(a,r[a]);var i=document.getElementsByTagName("script")[0];i.parentNode.insertBefore(n,i)}}("hubspot-messages-loader",0,{"data-loader":"hs-scriptloader","data-hsjs-portal":${settings.accountId},"data-hsjs-env":"prod","data-hsjs-hublet":"${settings.regionPrefix}"});`
+    )
   })
 })
 
 describe('Hubspot MC form handler works correctly', () => {
-  let fetchRequest: any;
-  const utk = 'dummy-utk-cookie-value';
+  let fetchRequest: any
+  const utk = 'dummy-utk-cookie-value'
 
   const settings = {
-    accountId: '12345', 
-    regionPrefix: 'eu1', 
-    domainName: 'domain.com'
+    accountId: '12345',
+    regionPrefix: 'eu1',
+    domainName: 'domain.com',
   }
 
   const fakeEvent = new Event('form', {}) as MCEvent
   fakeEvent.payload = {
-    formId: "form_id",
-    formClass: "my_class other_class",
-    email: "someemail@gmail.com",
-    firstName: "Name",
-    lastName: "Last name",
-    somedata: "some data"
+    formId: 'form_id',
+    formClass: 'my_class other_class',
+    email: 'someemail@gmail.com',
+    firstName: 'Name',
+    lastName: 'Last name',
+    somedata: 'some data',
   }
   fakeEvent.client = {
     ...dummyClient,
@@ -187,13 +192,17 @@ describe('Hubspot MC form handler works correctly', () => {
     },
   }
 
-  handleFormEvent(settings)(fakeEvent);
+  handleFormEvent(settings)(fakeEvent)
 
   it('creates the Hubspot form track request correctly', async () => {
     expect(fetchRequest).toBeTruthy()
-    expect(fetchRequest.url).toEqual(`https://forms-${settings.regionPrefix}.hubspot.com/collected-forms/submit/form`)
+    expect(fetchRequest.url).toEqual(
+      `https://forms-${settings.regionPrefix}.hubspot.com/collected-forms/submit/form`
+    )
     expect(fetchRequest.opts?.method).toEqual('POST')
-    expect(fetchRequest.opts?.headers?.['Content-Type']).toEqual('application/json')
+    expect(fetchRequest.opts?.headers?.['Content-Type']).toEqual(
+      'application/json'
+    )
 
     try {
       const body = JSON.parse(fetchRequest.opts?.body)
@@ -211,9 +220,13 @@ describe('Hubspot MC form handler works correctly', () => {
         type: '',
         utk: '',
         uuid: '',
-        version: ''
+        version: '',
       })
-      expect(body.contactFields).toStrictEqual({ email: '', firstName: '', lastName: '' })
+      expect(body.contactFields).toStrictEqual({
+        email: '',
+        firstName: '',
+        lastName: '',
+      })
       expect(body.contactFields.email).toEqual(fakeEvent.payload.email)
       expect(body.contactFields.firstName).toEqual(fakeEvent.payload.firstName)
       expect(body.contactFields.lastName).toEqual(fakeEvent.payload.lastName)
@@ -226,10 +239,12 @@ describe('Hubspot MC form handler works correctly', () => {
       expect(body.pageTitle).toEqual(fakeEvent.client.title)
       expect(body.pageUrl).toEqual(fakeEvent.client.url)
       expect(body.portalId).toEqual(settings.accountId)
-      expect(body.type).toEqual("SCRAPED")
+      expect(body.type).toEqual('SCRAPED')
       expect(body.utk).toEqual(utk)
-      expect(body.uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
-      expect(body.version).toEqual("collected-forms-embed-js-static-1.312")
+      expect(body.uuid).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+      )
+      expect(body.version).toEqual('collected-forms-embed-js-static-1.312')
     } catch {
       return false
     }

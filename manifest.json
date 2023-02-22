@@ -1,8 +1,11 @@
 {
   "name": "Hubspot",
   "namespace": "hubspot",
-  "description": "A Managed Component for making the internet better",
+  "description": "Hubspot Managed Component",
   "icon": "assets/icon.svg",
+  "categories": ["Analytics"],
+  "provides": ["events"],
+  "allowCustomFields": true,
   "permissions": {
     "access_client_kv": {
       "description": "This permission is used to facilitate better a user experience.",
@@ -11,6 +14,10 @@
     "client_network_requests": {
       "description": "This permission is used to facilitate better a user experience.",
       "required": true
+    },
+    "execute_unsafe_scripts": {
+      "description": "If you're using GA Audiences",
+      "required": false
     }
   }
 }
