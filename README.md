@@ -41,19 +41,33 @@ The domain associated with your Hubspot account.
 
 The event_id or the internal name of the event that you created in HubSpot. [Learn more](https://knowledge.hubspot.com/analytics-tools/create-codeless-custom-behavioral-events#create-the-event-in-hubspot)
 
-
 ### Event property name `string` _required_
 
 The internal name of the event property you’ve created for the event. [Learn more](https://developers.hubspot.com/docs/api/events/tracking-code)
-
 
 ### Event property value `string` _required_
 
 The value of the event property. [Learn more](https://developers.hubspot.com/docs/api/events/tracking-code)
 
+### Visitor email `string`
+
+The website visitor's email address needed for identification. [Learn more](https://developers.hubspot.com/docs/api/events/tracking-code)
+
+### Visitor ID `string`
+
+The website visitor's user ID needed for identification. [Learn more](https://developers.hubspot.com/docs/api/events/tracking-code)
+
+### Path `string`
+
+The path of the current page (for SPAs). [Learn more](https://developers.hubspot.com/docs/api/events/tracking-code)
+
 ### Form ID `string` _required_
 
 The ID of your HTML <form> element, e.g. myId.
+
+### Form class `string`
+
+The classes of your HTML <form> element, space separated, e.g. `my_class other_class`.
 
 ## 📝 License
 
