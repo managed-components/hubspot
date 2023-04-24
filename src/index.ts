@@ -129,56 +129,36 @@ export const handleChatEvent =
     )
   }
 
-const getFormEventRequestData = (event: MCEvent, portalId: string) => {
-  const { client, payload } = event
-  let {
-    formId,
-    formClass,
-    timestamp,
-    email,
-    firstName,
-    lastName,
-    identifyEmail,
-    identifyUserId,
-    po,
-    ...formValues
-  } = payload
-  const utk = client.get('hubspotutk')
-  formId = formId?.trim().replace(/^[#]/, '')
-  formClass = formClass?.trim()
-
-  return {
-    contactFields: { email, firstName, lastName },
-    formSelectorClasses: formClass
-      ?.split(' ')
-      .filter((str: string) => str.length)
-      .map((str: string) => `.${str}`)
-      .join(', '),
-    collectedFormClasses: formClass,
-    formSelectorId: formId ? `#${formId}` : formId,
-    collectedFormId: formId,
-    formValues,
-    pageTitle: client.title,
-    pageUrl: client.url.href,
-    portalId,
-    type: 'SCRAPED',
-    utk,
-    uuid: crypto.randomUUID(),
-    version: 'collected-forms-embed-js-static-1.312',
-  }
-}
-
 export const handleFormEvent =
-  (settings: ComponentSettings) => async (event: MCEvent) => {
+  (manager: Manager, settings: ComponentSettings) => async (event: MCEvent) => {
     const { accountId, regionPrefix } = settings
-    event.client.fetch(
+    const formId = event.payload.formId;
+
+    const hs_context = {
+      hutk: event.client.get('hubspotutk'),
+      ipAddress: event.client.ip,
+      pageUrl: event.client.url,
+      pageName: event.client.title,
+    };
+
+    const requestBodyParams = [
+      `hs_context=${encodeURIComponent(JSON.stringify(hs_context))}`
+    ];
+
+    for(let key in event.payload) {
+      if(key === 'formId') continue;
+      requestBodyParams.push(`${key}=${encodeURIComponent(event.payload[key])}`);
+    }
+
+    manager.fetch(
       `https://forms${getRegionPrefix(
         regionPrefix
-      )}.hubspot.com/collected-forms/submit/form`,
+      )}.hubspot.com/uploads/form/v2/${accountId}/${formId}`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(getFormEventRequestData(event, accountId)),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        redirect: "manual",
+        body: requestBodyParams.join('&')
       }
     )
   }
@@ -187,5 +167,5 @@ export default async function (manager: Manager, settings: ComponentSettings) {
   manager.addEventListener('pageview', sendEvent(settings))
   manager.addEventListener('event', sendEvent(settings))
   manager.addEventListener('chat', handleChatEvent(settings))
-  manager.addEventListener('form', handleFormEvent(settings))
+  manager.addEventListener('form', handleFormEvent(manager, settings))
 }
