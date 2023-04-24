@@ -3,7 +3,7 @@ import { uuidv4NoDashes, hashString, getRegionPrefix } from './utils'
 import UAParser from 'ua-parser-js'
 
 export const sendEvent =
-  (settings: ComponentSettings) => async (event: MCEvent) => {
+  (manager: Manager, settings: ComponentSettings) => async (event: MCEvent) => {
     const { accountId, regionPrefix, domainName } = settings
     const { client, payload, type } = event
     const {
@@ -104,7 +104,7 @@ export const sendEvent =
 
     const params = new URLSearchParams(hubspotParams).toString()
 
-    client.fetch(
+    manager.fetch(
       `https://track${getRegionPrefix(
         regionPrefix
       )}.hubspot.com/__ptq.gif?${params}`,
@@ -112,6 +112,11 @@ export const sendEvent =
         credentials: 'include',
         keepalive: true,
         mode: 'no-cors',
+        headers: {
+          'Cookie': `hubspotutk=${client.get('hubspotutk')}; hssc=${client.get('hssc')}; hstc=${client.get('hstc')}; hssrc=${client.get('hssrc')}`,
+          'referer': client.referer,
+          'user-agent': client.userAgent
+        }
       }
     )
   }
@@ -164,8 +169,8 @@ export const handleFormEvent =
   }
 
 export default async function (manager: Manager, settings: ComponentSettings) {
-  manager.addEventListener('pageview', sendEvent(settings))
-  manager.addEventListener('event', sendEvent(settings))
+  manager.addEventListener('pageview', sendEvent(manager, settings))
+  manager.addEventListener('event', sendEvent(manager, settings))
   manager.addEventListener('chat', handleChatEvent(settings))
   manager.addEventListener('form', handleFormEvent(manager, settings))
 }
