@@ -113,10 +113,12 @@ export const sendEvent =
         keepalive: true,
         mode: 'no-cors',
         headers: {
-          'Cookie': `hubspotutk=${client.get('hubspotutk')}; hssc=${client.get('hssc')}; hstc=${client.get('hstc')}; hssrc=${client.get('hssrc')}`,
-          'referer': client.referer,
-          'user-agent': client.userAgent
-        }
+          Cookie: `hubspotutk=${client.get('hubspotutk')}; hssc=${client.get(
+            'hssc'
+          )}; hstc=${client.get('hstc')}; hssrc=${client.get('hssrc')}`,
+          referer: client.referer,
+          'user-agent': client.userAgent,
+        },
       }
     )
   }
@@ -137,22 +139,22 @@ export const handleChatEvent =
 export const handleFormEvent =
   (manager: Manager, settings: ComponentSettings) => async (event: MCEvent) => {
     const { accountId, regionPrefix } = settings
-    const formId = event.payload.formId;
+    const formId = event.payload.formId
 
     const hs_context = {
       hutk: event.client.get('hubspotutk'),
       ipAddress: event.client.ip,
       pageUrl: event.client.url,
       pageName: event.client.title,
-    };
+    }
 
     const requestBodyParams = [
-      `hs_context=${encodeURIComponent(JSON.stringify(hs_context))}`
-    ];
+      `hs_context=${encodeURIComponent(JSON.stringify(hs_context))}`,
+    ]
 
-    for(let key in event.payload) {
-      if(key === 'formId') continue;
-      requestBodyParams.push(`${key}=${encodeURIComponent(event.payload[key])}`);
+    for (const key in event.payload) {
+      if (key === 'formId') continue
+      requestBodyParams.push(`${key}=${encodeURIComponent(event.payload[key])}`)
     }
 
     manager.fetch(
@@ -162,8 +164,8 @@ export const handleFormEvent =
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        redirect: "manual",
-        body: requestBodyParams.join('&')
+        redirect: 'manual',
+        body: requestBodyParams.join('&'),
       }
     )
   }
