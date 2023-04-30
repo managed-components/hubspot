@@ -118,6 +118,7 @@ export const sendEvent =
           )}; hstc=${client.get('hstc')}; hssrc=${client.get('hssrc')}`,
           referer: client.referer,
           'user-agent': client.userAgent,
+          'x-forwarded-for': client.ip,
         },
       }
     )
