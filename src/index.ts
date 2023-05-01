@@ -117,8 +117,13 @@ export const sendEvent =
             'hssc'
           )}; hstc=${client.get('hstc')}; hssrc=${client.get('hssrc')}`,
           referer: client.referer,
-          'user-agent': client.userAgent,
-          'x-forwarded-for': client.ip,
+          'User-Agent': client.userAgent,
+          'X-HS-Public-Host': domainName,
+          'X-HubSpot-Trust-Forwarded-For': 'true',
+          'X-Real-IP': client.ip,
+          'X-Forwarded-Proto': client.url.protocol.replace(':', ''),
+          'X-Forwarded-For': client.ip,
+          'X-HubSpot-Client-IP': client.ip,
         },
       }
     )
