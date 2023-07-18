@@ -27,10 +27,10 @@ const dummyClient = {
   fetch: () => undefined,
   set: () => undefined,
   execute: () => undefined,
-  return: () => {},
+  return: () => undefined,
   get: () => undefined,
-  attachEvent: () => {},
-  detachEvent: () => {},
+  attachEvent: () => undefined,
+  detachEvent: () => undefined,
 }
 
 describe('Hubspot MC event handler works correctly', () => {
