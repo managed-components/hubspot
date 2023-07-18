@@ -1,6 +1,5 @@
 import { ComponentSettings, Manager, MCEvent } from '@managed-components/types'
 import { uuidv4NoDashes, hashString, getRegionPrefix } from './utils'
-import UAParser from 'ua-parser-js'
 
 export const sendEvent =
   (settings: ComponentSettings) => async (event: MCEvent) => {
@@ -131,9 +130,8 @@ export const handleChatEvent =
 
 const getFormEventRequestData = (event: MCEvent, portalId: string) => {
   const { client, payload } = event
-  let {
-    formId,
-    formClass,
+  let { formId, formClass } = payload
+  const {
     timestamp,
     email,
     firstName,
