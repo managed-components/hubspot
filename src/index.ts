@@ -1,5 +1,12 @@
-import { ComponentSettings, Manager, MCEvent } from '@managed-components/types'
+import {
+  Client,
+  ComponentSettings,
+  Manager,
+  MCEvent,
+} from '@managed-components/types'
 import { uuidv4NoDashes, hashString, getRegionPrefix } from './utils'
+
+const visitorCookieName = 'hubspotutk'
 
 export const sendEvent =
   (settings: ComponentSettings) => async (event: MCEvent) => {
@@ -44,7 +51,6 @@ export const sendEvent =
     }
 
     // Extract VI from cookie
-    const visitorCookieName = 'hubspotutk'
     const visitorCookie = client.get(visitorCookieName)
     if (visitorCookie) {
       hubspotParams['vi'] = visitorCookie
@@ -141,7 +147,7 @@ const getFormEventRequestData = (event: MCEvent, portalId: string) => {
     po,
     ...formValues
   } = payload
-  const utk = client.get('hubspotutk')
+  const utk = client.get(visitorCookieName)
   formId = formId?.trim().replace(/^[#]/, '')
   formClass = formClass?.trim()
 
@@ -184,9 +190,10 @@ export const handleCollectedFormsEvent =
 export const handleFormEvent =
   (manager: Manager, settings: ComponentSettings) => async (event: MCEvent) => {
     const { client, payload } = event
-    const { formId, ...restPayload } = payload
-    const { accountId } = settings
-    const url = `https://api.hsforms.com/submissions/v3/integration/submit/${accountId}/${formId}`
+    const { formId, accountId, ...restPayload } = payload
+    const url = `https://api.hsforms.com/submissions/v3/integration/submit/${
+      accountId || settings.accountId
+    }/${formId}`
 
     const data: any = {
       fields: Object.entries(restPayload).map(field => {
@@ -202,7 +209,6 @@ export const handleFormEvent =
       },
     }
 
-    const visitorCookieName = 'hubspotutk'
     const visitorCookie = client.get(visitorCookieName)
     if (visitorCookie) {
       data.context.hutk = visitorCookie
