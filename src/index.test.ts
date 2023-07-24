@@ -3,7 +3,6 @@ import { MCEvent } from '@managed-components/types'
 import {
   sendEvent,
   handleChatEvent,
-  handleFormEvent,
   handleCollectedFormsEvent,
   prepareFormEvent,
 } from '.'
@@ -258,7 +257,6 @@ describe('Hubspot MC Collected Form handler works correctly', () => {
 })
 
 describe('Hubspot MC Form handler works correctly', () => {
-  let request: any
   const settings = {
     accountId: '12345',
     regionPrefix: 'eu1',
