@@ -182,27 +182,38 @@ export const handleCollectedFormsEvent =
     )
   }
 
+export const prepareFormEvent = (
+  settings: ComponentSettings,
+  event: MCEvent
+) => {
+  const { client, payload } = event
+  const { formId, accountId, ...restPayload } = payload
+
+  const url = `https://api.hsforms.com/submissions/v3/integration/submit/${
+    accountId || settings.accountId
+  }/${formId}`
+
+  const data: any = {
+    fields: Object.entries(restPayload).map(field => {
+      return {
+        name: field[0],
+        value: field[1],
+      }
+    }),
+    context: {
+      pageUri: client.url.href,
+      pageName: client.title,
+      ipAddress: client.ip,
+    },
+  }
+
+  return { url, data }
+}
+
 export const handleFormEvent =
   (manager: Manager, settings: ComponentSettings) => async (event: MCEvent) => {
-    const { client, payload } = event
-    const { formId, accountId, ...restPayload } = payload
-    const url = `https://api.hsforms.com/submissions/v3/integration/submit/${
-      accountId || settings.accountId
-    }/${formId}`
-
-    const data: any = {
-      fields: Object.entries(restPayload).map(field => {
-        return {
-          name: field[0],
-          value: field[1],
-        }
-      }),
-      context: {
-        pageUri: client.url.href,
-        pageName: client.title,
-        ipAddress: client.ip,
-      },
-    }
+    const { url, data } = prepareFormEvent(settings, event)
+    const { client } = event
 
     const visitorCookie = client.get(visitorCookieName)
     if (visitorCookie) {
