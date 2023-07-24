@@ -1,9 +1,4 @@
-import {
-  Client,
-  ComponentSettings,
-  Manager,
-  MCEvent,
-} from '@managed-components/types'
+import { ComponentSettings, Manager, MCEvent } from '@managed-components/types'
 import { uuidv4NoDashes, hashString, getRegionPrefix } from './utils'
 
 const visitorCookieName = 'hubspotutk'
