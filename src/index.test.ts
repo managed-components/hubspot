@@ -1,6 +1,11 @@
 import { hashString } from './utils'
 import { MCEvent } from '@managed-components/types'
-import { sendEvent, handleChatEvent, handleFormEvent } from '.'
+import {
+  sendEvent,
+  handleChatEvent,
+  handleCollectedFormsEvent,
+  prepareFormEvent,
+} from '.'
 
 const isRecentTs = (value: string) => {
   const now = new Date().valueOf()
@@ -161,7 +166,7 @@ describe('Hubspot MC chat handler works correctly', () => {
   })
 })
 
-describe('Hubspot MC form handler works correctly', () => {
+describe('Hubspot MC Collected Form handler works correctly', () => {
   let fetchRequest: any
   const utk = 'dummy-utk-cookie-value'
 
@@ -171,7 +176,7 @@ describe('Hubspot MC form handler works correctly', () => {
     domainName: 'domain.com',
   }
 
-  const fakeEvent = new Event('form', {}) as MCEvent
+  const fakeEvent = new Event('collected-form', {}) as MCEvent
   fakeEvent.payload = {
     formId: 'form_id',
     formClass: 'my_class other_class',
@@ -192,9 +197,9 @@ describe('Hubspot MC form handler works correctly', () => {
     },
   }
 
-  handleFormEvent(settings)(fakeEvent)
+  handleCollectedFormsEvent(settings)(fakeEvent)
 
-  it('creates the Hubspot form track request correctly', async () => {
+  it('creates the Hubspot collected form track request correctly', async () => {
     expect(fetchRequest).toBeTruthy()
     expect(fetchRequest.url).toEqual(
       `https://forms-${settings.regionPrefix}.hubspot.com/collected-forms/submit/form`
@@ -248,5 +253,62 @@ describe('Hubspot MC form handler works correctly', () => {
     } catch {
       return false
     }
+  })
+})
+
+describe('Hubspot MC Form handler works correctly', () => {
+  const settings = {
+    accountId: '12345',
+    regionPrefix: 'eu1',
+    domainName: 'domain.com',
+  }
+
+  const fakeEvent = new Event('form', {}) as MCEvent
+  fakeEvent.payload = {
+    formId: 'form_id',
+    formClass: 'my_class other_class',
+    email: 'someemail@gmail.com',
+    firstName: 'Name',
+    lastName: 'Last name',
+    somedata: 'some data',
+  }
+  fakeEvent.client = {
+    ...dummyClient,
+    fetch: () => {
+      return undefined
+    },
+    get: key => {
+      if (key === 'hubspotutk') return 'dummy-utk'
+      return undefined
+    },
+  }
+
+  it('Forms the hubspot form request payload correctly', () => {
+    const { url, data } = prepareFormEvent(settings, fakeEvent)
+
+    expect(url).toBe(
+      `https://api.hsforms.com/submissions/v3/integration/submit/12345/form_id`
+    )
+
+    data.fields.forEach((field: any) => {
+      expect(field.name).toBeTruthy()
+      expect(field.value).toBeTruthy()
+    })
+  })
+
+  it('Forms the hubspot form request payload correctly if accountId is passed via action', () => {
+    fakeEvent.payload = {
+      formId: 'form_id2',
+      formClass: 'my_class other_class',
+      email: 'someemail@gmail.com',
+      firstName: 'Name',
+      lastName: 'Last name',
+      somedata: 'some data',
+      accountId: 'account_id_passed_from_action',
+    }
+    const { url } = prepareFormEvent(settings, fakeEvent)
+    expect(url).toBe(
+      `https://api.hsforms.com/submissions/v3/integration/submit/account_id_passed_from_action/form_id2`
+    )
   })
 })
