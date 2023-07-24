@@ -258,6 +258,7 @@ describe('Hubspot MC Collected Form handler works correctly', () => {
 })
 
 describe('Hubspot MC Form handler works correctly', () => {
+  let request: any
   const settings = {
     accountId: '12345',
     regionPrefix: 'eu1',
@@ -276,9 +277,11 @@ describe('Hubspot MC Form handler works correctly', () => {
   fakeEvent.client = {
     ...dummyClient,
     fetch: (url, opts) => {
+      request = { url, opts }
       return undefined
     },
     get: key => {
+      if (key === 'hubspotutk') return 'dummy-utk'
       return undefined
     },
   }
