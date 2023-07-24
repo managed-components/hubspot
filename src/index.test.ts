@@ -276,8 +276,7 @@ describe('Hubspot MC Form handler works correctly', () => {
   }
   fakeEvent.client = {
     ...dummyClient,
-    fetch: (url, opts) => {
-      request = { url, opts }
+    fetch: () => {
       return undefined
     },
     get: key => {
@@ -309,7 +308,7 @@ describe('Hubspot MC Form handler works correctly', () => {
       somedata: 'some data',
       accountId: 'account_id_passed_from_action',
     }
-    const { url, data } = prepareFormEvent(settings, fakeEvent)
+    const { url } = prepareFormEvent(settings, fakeEvent)
     expect(url).toBe(
       `https://api.hsforms.com/submissions/v3/integration/submit/account_id_passed_from_action/form_id2`
     )
