@@ -1,6 +1,8 @@
 import { ComponentSettings, Manager, MCEvent } from '@managed-components/types'
 import { uuidv4NoDashes, hashString, getRegionPrefix } from './utils'
 
+const visitorCookieName = 'hubspotutk'
+
 export const sendEvent =
   (settings: ComponentSettings) => async (event: MCEvent) => {
     const { accountId, regionPrefix, domainName } = settings
@@ -44,7 +46,6 @@ export const sendEvent =
     }
 
     // Extract VI from cookie
-    const visitorCookieName = 'hubspotutk'
     const visitorCookie = client.get(visitorCookieName)
     if (visitorCookie) {
       hubspotParams['vi'] = visitorCookie
@@ -141,7 +142,7 @@ const getFormEventRequestData = (event: MCEvent, portalId: string) => {
     po,
     ...formValues
   } = payload
-  const utk = client.get('hubspotutk')
+  const utk = client.get(visitorCookieName)
   formId = formId?.trim().replace(/^[#]/, '')
   formClass = formClass?.trim()
 
@@ -166,7 +167,7 @@ const getFormEventRequestData = (event: MCEvent, portalId: string) => {
   }
 }
 
-export const handleFormEvent =
+export const handleCollectedFormsEvent =
   (settings: ComponentSettings) => async (event: MCEvent) => {
     const { accountId, regionPrefix } = settings
     event.client.fetch(
@@ -181,9 +182,49 @@ export const handleFormEvent =
     )
   }
 
+export const handleFormEvent =
+  (manager: Manager, settings: ComponentSettings) => async (event: MCEvent) => {
+    const { client, payload } = event
+    const { formId, accountId, ...restPayload } = payload
+    const url = `https://api.hsforms.com/submissions/v3/integration/submit/${
+      accountId || settings.accountId
+    }/${formId}`
+
+    const data: any = {
+      fields: Object.entries(restPayload).map(field => {
+        return {
+          name: field[0],
+          value: field[1],
+        }
+      }),
+      context: {
+        pageUri: client.url.href,
+        pageName: client.title,
+        ipAddress: client.ip,
+      },
+    }
+
+    const visitorCookie = client.get(visitorCookieName)
+    if (visitorCookie) {
+      data.context.hutk = visitorCookie
+    }
+
+    manager.fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
 export default async function (manager: Manager, settings: ComponentSettings) {
   manager.addEventListener('pageview', sendEvent(settings))
   manager.addEventListener('event', sendEvent(settings))
   manager.addEventListener('chat', handleChatEvent(settings))
-  manager.addEventListener('form', handleFormEvent(settings))
+  manager.addEventListener(
+    'collected-forms',
+    handleCollectedFormsEvent(settings)
+  )
+  manager.addEventListener('form', handleFormEvent(manager, settings))
 }
