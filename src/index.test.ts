@@ -1,4 +1,5 @@
 import { hashString } from './utils'
+import crypto from 'crypto'
 import { MCEvent } from '@managed-components/types'
 import {
   sendEvent,
@@ -6,6 +7,10 @@ import {
   handleCollectedFormsEvent,
   prepareFormEvent,
 } from '.'
+
+if (!global.crypto) {
+  vi.stubGlobal('crypto', crypto)
+}
 
 const isRecentTs = (value: string) => {
   const now = new Date().valueOf()
