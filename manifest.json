@@ -18,6 +18,10 @@
     "execute_unsafe_scripts": {
       "description": "If you're using GA Audiences",
       "required": false
+    },
+    "server_network_requests": {
+      "description": "Hubspot uses serverside network requests to report data",
+      "required": true
     }
   }
 }
