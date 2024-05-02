@@ -88,7 +88,7 @@ describe('Hubspot MC event handler works correctly', () => {
 
   it('creates the Hubspot track request correctly', async () => {
     const request = fetchedRequests.find((x: any) =>
-      x.url.startsWith('https://track-eu1.hubspot.com/__ptq.gif?')
+      x.url.startsWith('https://track-eu1.hubspot.com/__ptbe.gif?')
     )
     expect(request).toBeTruthy()
     expect(request?.opts?.mode).toEqual('no-cors')
@@ -97,7 +97,7 @@ describe('Hubspot MC event handler works correctly', () => {
 
     const url = new URL(request.url)
 
-    expect(url.pathname).toEqual('/__ptq.gif')
+    expect(url.pathname).toEqual('/__ptbe.gif')
     expect(url.searchParams.get('k')).toEqual('3')
     expect(url.searchParams.get('v')).toEqual('1.1')
     expect(url.searchParams.get('a')).toEqual(settings.accountId)
