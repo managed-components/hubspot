@@ -107,7 +107,7 @@ export const sendEvent =
     client.fetch(
       `https://track${getRegionPrefix(
         regionPrefix
-      )}.hubspot.com/__ptbe.gif?${params}`,
+      )}.hubspot.com/__ptq.gif?${params}`,
       {
         credentials: 'include',
         keepalive: true,
